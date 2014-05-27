@@ -12,9 +12,9 @@ import collections
 # GPLIN_000707900 contig_98       41.18   17      10      0       1       17      3363    3413    3e-04   22.3
 # GPLIN_000707900 contig_98       100.00  14      0       0       1       14      329     370     0.019   33.9
 
-def parse_blast_to_dict(filename):
+def parse_blast_to_dict(blast_file):
 	blast_dict = collections.defaultdict(dict) 
-	with open(filename) as fh:
+	with open(blast_file) as fh:
 		for line in fh:
 			temp = line.rstrip("\n").rsplit("\t")
 			query, subject, sstart, send, strand = str(temp[0]), str(temp[1]), int(temp[8]), int(temp[9]), ''
@@ -41,20 +41,21 @@ def parse_blast_to_dict(filename):
 				blast_dict[query][subject] = [strand, sstart, send]
 	return blast_dict
 
-def parse_fasta_to_dict(filename):
+def parse_fasta_to_dict(fasta_file):
 	assembly_dict = {}
-	with open(filename) as fh:
+	with open(fasta_file) as fh:
 		header = ''
 		seq = ''
 		for line in fh:
 			line = line.rstrip("\n")
 			if line.startswith(">"):
-				header = line.lstrip(">")
-				assembly_dict[header] = ''
+				if (header):
+					assembly_dict[header] = seq
 				seq = ''
-        	else:
-        		seq += line
-        assembly_dict[header] = line
+				header = line[1:]
+			else:
+				seq += line
+		assembly_dict[header] = seq
 	return assembly_dict
 
 def print_blast_dict(blast_dict):
@@ -79,25 +80,38 @@ def print_protein_dict(protein_dict):
 def print_regions(assembly_file, assembly_dict, blast_dict, region):
 	for query in blast_dict:
 		for subject in blast_dict[query]:
-			print subject
 			sequence = assembly_dict[subject]
+			strand = blast_dict[query][subject][0]
+			print query + ' ' + subject + ' ' + strand + ' hit ' + str(blast_dict[query][subject][1]) + ' ' + str(blast_dict[query][subject][2])
 			print sequence
-			sequence_region = sequence[blast_dict[query][subject][1]:blast_dict[query][subject][2]]
+			if (strand == '+'):
+				start_region = blast_dict[query][subject][1] - region
+				end_region = blast_dict[query][subject][2] + region
+			else:
+				start_region = blast_dict[query][subject][2] - region
+				end_region = blast_dict[query][subject][1] + region
+			if (start_region < 1):
+				start_region = 0 
+			if (end_region > len(sequence)):
+				end_region = len(sequence)
+			sequence_region = sequence[start_region:end_region]
+
+			print query + ' ' + subject + ' ' + str(start_region) + ' ' + str(end_region)
 			print sequence_region
 			#filename = os.path.dirname(assembly_file) + '/' + assembly_file + '.' + query + '.' + subject + '.fa'
-			filename = './' + assembly_file + '.' + query + '.' + subject + '.fa'
+			filename = './' + query + '.' + assembly_file + '.' + subject + '.' + strand + '.fa'
 			fh = open(filename, "w")
-			fh.write(">" + assembly_file + '.' + query + '.' + subject + '_' + str(REGION) + "\n" + sequence_region + "\n")
+			fh.write(">" + assembly_file + '.' + query + '.' + subject + '.' + str(region) + "\n" + sequence_region + "\n")
 
 if __name__ == "__main__":
 	blast_file = sys.argv[1]
 	#protein_file = sys.argv[2]
 	assembly_file= sys.argv[2]
-	REGION = 1000
+	region = int(sys.argv[3])
 	blast_dict = parse_blast_to_dict(blast_file)
 	#protein_dict = parse_fasta_to_dict(protein_file)
 	#print_protein_dict(protein_dict)
 	assembly_dict = parse_fasta_to_dict(assembly_file)
-	print assembly_dict
-	print_regions(assembly_file, assembly_dict, blast_dict, REGION)
-	print_blast_dict(blast_dict)
+	
+	print_regions(assembly_file, assembly_dict, blast_dict, region)
+	#print_blast_dict(blast_dict)
