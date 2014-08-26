@@ -100,6 +100,7 @@ def print_regions(assembly_file, assembly_dict, blast_dict, region):
 			fh.write(">" + query + '.' + assembly_file + '.' + subject + '.' + str(region) + "\n" + sequence_region + "\n")
 
 def print_proteins (protein_dict, blast_dict):
+	print protein_dict
 	for query in blast_dict:
 		print query
 		filename = query + '.' + assembly_file
