@@ -49,7 +49,9 @@ def parse_fasta_to_dict(fasta_file):
 		for line in fh:
 			line = line.rstrip("\n")
 			if line.startswith(">"):
-				if (header):
+				if header == '':
+					pass
+				else:
 					assembly_dict[header] = seq
 				seq = ''
 				header = line.split(' ')[0][1:]
@@ -93,13 +95,14 @@ def print_regions(assembly_file, assembly_dict, blast_dict, region):
 			#print query + ' ' + subject + ' ' + str(start_region) + ' ' + str(end_region)
 			#print sequence_region
 			#filename = os.path.dirname(assembly_file) + '/' + assembly_file + '.' + query + '.' + subject + '.fa'
-			filename = './' + query + '.' + assembly_file + '.' + subject + '.' + strand + '.fa'
+			filename = query + '.' + assembly_file + '.' + subject + '.' + strand + '.fa'
 			fh = open(filename, "w")
 			fh.write(">" + query + '.' + assembly_file + '.' + subject + '.' + str(region) + "\n" + sequence_region + "\n")
 
 def print_proteins (protein_dict, blast_dict):
 	for query in blast_dict:
-		filename = './' + query + '.' + assembly_file
+		print query
+		filename = query + '.' + assembly_file
 		fh = open(filename, "w")
 		fh.write(">" + query + '.' + assembly_file + "\n" + protein_dict[query] )
 
