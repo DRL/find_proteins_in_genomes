@@ -54,7 +54,7 @@ def parse_fasta_to_dict(fasta_file):
 				else:
 					data_dict[header] = seq
 				seq = ''
-				header = line.split(' ')[0][1:].replace()
+				header = line.split(' ')[0][1:]
 			else:
 				seq += line
 		data_dict[header] = seq
