@@ -43,7 +43,7 @@ def parse_blast_to_dict(blast_file):
 
 def parse_fasta_to_dict(fasta_file):
 	data_dict = {}
-	with open(fasta_file) as fh:
+	with open(fasta_file, 'rU') as fh:
 		header = ''
 		seq = ''
 		for line in fh:
@@ -54,7 +54,7 @@ def parse_fasta_to_dict(fasta_file):
 				else:
 					data_dict[header] = seq
 				seq = ''
-				header = line.split(' ')[0][1:]
+				header = line.split(' ')[0][1:].replace()
 			else:
 				seq += line
 		data_dict[header] = seq
