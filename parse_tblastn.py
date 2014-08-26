@@ -42,7 +42,7 @@ def parse_blast_to_dict(blast_file):
 	return blast_dict
 
 def parse_fasta_to_dict(fasta_file):
-	assembly_dict = {}
+	data_dict = {}
 	with open(fasta_file) as fh:
 		header = ''
 		seq = ''
@@ -52,13 +52,13 @@ def parse_fasta_to_dict(fasta_file):
 				if header == '':
 					pass
 				else:
-					assembly_dict[header] = seq
+					data_dict[header] = seq
 				seq = ''
 				header = line.split(' ')[0][1:]
 			else:
 				seq += line
-		assembly_dict[header] = seq
-	return assembly_dict
+		data_dict[header] = seq
+	return data_dict
 
 def print_blast_dict(blast_dict):
 	for query in blast_dict:
